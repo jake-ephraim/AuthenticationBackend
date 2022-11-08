@@ -14,7 +14,10 @@ class VerifyData(BaseModel):
     file_type: str
 
 
-def save_file(file_bin:str, file_path:str, file_type:str):
+def save_file(file_bin:str|list, file_path:str|list, file_type:str):
+    pass
+
+def its_a_face(image:str, file_type:str) -> bool:
     pass
 
 @app.get('/')
@@ -25,17 +28,26 @@ def index():
     return {"Server": "Running"}
 
 @app.post("/verify")
-async def make_verification(request_data:VerifyData):
+def make_verification(request_data:VerifyData):
     '''
     cross-validate user and submitted identity.
     '''
     authorize_user = False
+    msg = ""
+    user_image = request_data.user_image
+    id_image = request_data.id_image
+    file_type = request_data.file_type
     try:
-        save_file(request_data.user_image, USERPATH, request_data.file_type)
-        save_file(request_data.user_image, IDPATH, request_data.file_type)
+        save_file([user_image, id_image], [USERPATH, IDPATH], file_type)
+        if not its_a_face(USERPATH, file_type):
+            msg = "User image not a face"
+            raise(Exception("User image not a face"))
+        if not its_a_face(IDPATH, file_type):
+            msg = "ID image not a face"
+            raise(Exception("ID image not a face"))
     except Exception as e:
         pass
-    return {"Authorize User": authorize_user}
+    return {"Authorize User": authorize_user, "msg": msg}
 
 
 
