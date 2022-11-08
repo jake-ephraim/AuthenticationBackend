@@ -4,14 +4,21 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+USERPATH = "./user"
+IDPATH = "./id"
+
 
 class VerifyData(BaseModel):
     user_image: str
     id_image: str
+    file_type: str
 
+
+def save_file(file_bin:str, file_path:str, file_type:str):
+    pass
 
 @app.get('/')
-async def index():
+def index():
     '''
     Application root.
     '''
@@ -20,11 +27,15 @@ async def index():
 @app.post("/verify")
 async def make_verification(request_data:VerifyData):
     '''
-    Make recommendations using the users unique serial number.
-        :param userid: the unique serial number of the user.
-        :returns: a json (map) of the recommendations made.
+    cross-validate user and submitted identity.
     '''
-    return {"Authorize User": True}
+    authorize_user = False
+    try:
+        save_file(request_data.user_image, USERPATH, request_data.file_type)
+        save_file(request_data.user_image, IDPATH, request_data.file_type)
+    except Exception as e:
+        pass
+    return {"Authorize User": authorize_user}
 
 
 
